@@ -11,3 +11,8 @@ file names with 1,1_1,1_2,1_3 are experiments where weights and bias are defined
 would be casted to float32 for any float32-required calculations
 
 
+In all the above experiments, conv2d and dropout, softmax have to be done in float32, since there will be errors for these operations.
+
+But in the tensorflow 1.8 reference, bfloat16 is supported for conv2d, softmax doesn't support bfloat16 yet.
+
+
