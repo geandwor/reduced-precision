@@ -66,8 +66,7 @@ init = tf.global_variables_initializer()
     #sess.run(init)
 for i in range(leng):
     print("iteration i{0}\n".format(i))
-    
-        
+      
     d0 =[]
     #d01=[]
     d1 =[]
@@ -76,8 +75,6 @@ for i in range(leng):
     #d3 =[]
     #d4 =[]
     #d5 =[]
-    
-    
     for j in range(ite):
         with tf.Session() as sess:
             #sess.run(init)
@@ -88,12 +85,10 @@ for i in range(leng):
             b1 = sess.run(b)
             sess.run(tf.cast(a1,tf.bfloat16))
             sess.run(tf.cast(a1,tf.bfloat16))
-            
             """calculate the multiplication"""
             """1 multiplication before down cast"""
             cc = sess.run(c, feed_dict= {amatrix:a1,bmatrix:b1})
             cc0 = sess.run(c0,feed_dict={amatrix0:a1,bmatrix0:b1})
-        
             '''calculation in sigmoid only diagnol elements are considered for further calculation'''
             cc_sig = sess.run(tf.sigmoid(cc))
             cc0_fl32 = sess.run(tf.cast(cc0,tf.float32))
@@ -103,7 +98,6 @@ for i in range(leng):
             """upcast to float32 from calcualted in 16 bit"""
             cc_sigcast = sess.run(tf.cast(cc_sig,tf.float32))
             cc0_sigcast = cc0_sig
- 
             '''calculation in sigmoid only diagnol elements are considered for further calculation'''
             cc1 = sess.run(c1, feed_dict= {amatrix1:a1,bmatrix1:b1})
             cc1_sig = sess.run(tf.sigmoid(cc1))
@@ -117,16 +111,11 @@ for i in range(leng):
             diffcccast_sig = cc1_sig - cc_sigcast
             #subtract in tensorflow in float32
             #diffcccastf_sig=sess.run(tf.subtract(cc1_sig,cc_sigcast))
-
             """"2 difference for multiplication after downcast then result upcast"""
             """3 difference for multiplication result down cast to float16"""
             #diffcc1_16_sig = cc1_sig_16 - cc_sig
-
             """4 difference for multilplcation result down cast to bfloat16"""
             #diffcc1_bf16_sig = cc1_sig_bf16 - cc0_sig
-        
-
-   
             d0.append(np.sqrt(summation(diffcc0cast_sig)))
             #square root in tensorflow in float32
             #d01.append(sess.run(tf.sqrt(summation(diffcc0cast_sig))))

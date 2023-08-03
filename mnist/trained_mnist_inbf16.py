@@ -55,23 +55,30 @@ with tf.Session() as sess:
     accuracy = tf.reduce_mean(tf.cast(correct_prediction,tf.bfloat16))
     print(sess.run(accuracy, feed_dict={x:mnist.test.images,y_:mnist.test.labels}))
 
+
 """weight initialization"""
 def weight_variable(shape):
     initial = tf.truncated_normal(shape, stddev=0.1)
     #initial1 = tf.cast(initial,tf.bfloat16)
     return tf.Variable(initial)
+
+
 def bias_variable(shape):
     initial = tf.constant(0.1,shape=shape)
     #initial1 = tf.cast(initial,tf.bfloat16)
     return tf.Variable(initial)
+
 
 """convolution and pooling"""
 def conv2d(x,W):
     
     return tf.nn.conv2d(x,W,strides=[1,1,1,1],padding='SAME')
 
+
 def max_pool_2X2(x):
     return tf.nn.max_pool(x,ksize=[1,2,2,1],strides=[1,2,2,1],padding='SAME')
+
+
 
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data/",one_hot=True)
@@ -89,9 +96,7 @@ W_conv1 = weight_variable([5,5,1,32])
 b_conv1 = bias_variable([32])
 
 x_image = tf.reshape(xbf16_fl32,[-1,28,28,1])
-
-
-
+#construct the network structure
 h_conv1 = tf.nn.relu(conv2d(x_image,W_conv1)+b_conv1)
 h_pool1 = max_pool_2X2(h_conv1)
 

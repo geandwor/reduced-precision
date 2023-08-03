@@ -166,6 +166,8 @@ def weight_variable(shape):
     initial = tf.constant(0.02,shape=shape) # starting from the same set of initial values
     #initial1 = tf.cast(initial,tf.float16)
     return tf.Variable(initial)
+
+
 def bias_variable(shape):
     initial = tf.constant(0.1,shape=shape)
     #initial1 = tf.cast(initial,tf.float16)
@@ -175,8 +177,10 @@ def bias_variable(shape):
 def conv2d(x,W):
     return tf.nn.conv2d(x,W,strides=[1,1,1,1],padding='SAME')
 
+
 def max_pool_2X2(x):
     return tf.nn.max_pool(x,ksize=[1,2,2,1],strides=[1,2,2,1],padding='SAME')
+
 
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data/",one_hot=True)
@@ -185,6 +189,7 @@ import time
 timerfl32 = []
 timerbf16 = []
 
+#construct network
 pool1diflist = []
 pool2diflist = []
 fc1diflist = []
@@ -232,8 +237,6 @@ hbf16_fl32_pool1 = max_pool_2X2(hbf16_fl32_conv1)
 
 #get the average of the difference of the first pool layer
 pool1dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(hfl32_pool1,hbf16_fl32_pool1))))
-
-
 Wfl32_conv2 = weight_variable([5,5,32,64])
 bfl32_conv2 = bias_variable([64])
 
@@ -313,14 +316,11 @@ sess.run(tf.global_variables_initializer())
 for i in range(25000):
   batch = mnist.train.next_batch(50)
   
-  if i%100 == 0:
-     
+  if i%100 == 0: 
     train_accuracyfl32 = accuracyfl32.eval(feed_dict={
         xfl32:batch[0], y_fl32: batch[1], keepfl32_prob: 1.0})
     print("step %d, training accuracy in fl32 %g"%(i, train_accuracyfl32))
-    
-    
-  
+     
   if i%100 == 0:
      train_accuracybf16_fl32 = accuracybf16_fl32.eval(feed_dict={xbf16:batch[0], y_bf16: batch[1], keepbf16_fl32_prob: 1.0})
      print("step %d, training accuracy in bf16 %g"%(i, train_accuracybf16_fl32))

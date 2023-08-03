@@ -40,9 +40,6 @@ ite = 100
 #a = tf.Variable(tf.random_uniform(shape1,minval=50,maxval = 255,dtype = tf.float32), tf.float32)
 #b = tf.Variable(tf.random_uniform(shape2,minval = 100, maxval=255, dtype=tf.float32), tf.float32)
 
-
-
-
         
 """summation of the elements of the difference matrix and get the square root"""
 #assume the List is either vector or two dimention matrix
@@ -53,8 +50,7 @@ def summation(ndarray):
         for j in range(n):
             #summation of diagnoal elements only
             if i==j:
-                s +=ndarray[i][j]**2
-                  
+                s +=ndarray[i][j]**2              
     return s
 
 amatrix = tf.placeholder(tf.float16,shape1)
@@ -88,15 +84,12 @@ tanhbf16_fl32=tf.tanh(tanhbf16)
 
 tanhfl32 = tf.tanh(c1)
 
-
 #scc1 = tf.subtract(c,c1)
 init = tf.global_variables_initializer()
 #with tf.Session() as sess:
     #sess.run(init)
 for i in range(leng):
-    print("iteration i{0}\n".format(i))
-    
-        
+    print("iteration i{0}\n".format(i))    
     d0 =[]
     #d01=[]
     d1 =[]
@@ -106,7 +99,6 @@ for i in range(leng):
     #d4 =[]
     #d5 =[]
     
-    
     for j in range(100):
         with tf.Session() as sess:
             sess.run(init)
@@ -115,7 +107,6 @@ for i in range(leng):
             """a1 and b1 are in float32 format"""
             npmini = mini.eval()
             npmaxi = sess.run(maxi) 
-            
             a1 = sess.run(a,feed_dict={minp:npmini[i],maxp:npmaxi[i]})
             b1 = sess.run(b,feed_dict={minp:npmini[i],maxp:npmaxi[i]})
             #print("a1 is {0}\n".format(a1))
@@ -124,7 +115,6 @@ for i in range(leng):
             """1 multiplication before down cast"""
             cc = sess.run(c, feed_dict= {amatrix:a1,bmatrix:b1})
             cc0 = sess.run(c0,feed_dict={amatrix0:a1,bmatrix0:b1})
-        
             '''calculation in tanhmoid only diagnol elements are considered for further calculation'''
             cc_tanh = sess.run(tanhfl16,feed_dict={tfl16:cc})
             cc0_fl32 = sess.run(tanhbf16,feed_dict={tbf16:cc0})
@@ -148,16 +138,11 @@ for i in range(leng):
             diffcccast_tanh = cc1_tanh - cc_tanhcast
             #subtract in tensorflow in float32
             #diffcccastf_tanh=sess.run(tf.subtract(cc1_tanh,cc_tanhcast))
-
             """"2 difference for multiplication after downcast then result upcast"""
             """3 difference for multiplication result down cast to float16"""
             #diffcc1_16_tanh = cc1_tanh_16 - cc_tanh
-
             """4 difference for multilplcation result down cast to bfloat16"""
             #diffcc1_bf16_tanh = cc1_tanh_bf16 - cc0_tanh
-        
-
-           
             d0.append(np.sqrt(summation(diffcc0cast_tanh)))
             #square root in tensorflow in float32
             #d01.append(sess.run(tf.sqrt(summation(diffcc0cast_tanh))))
@@ -176,7 +161,6 @@ for i in range(leng):
     #the calculation results of commented out two lines are the same as the line above
     #print("average difference in tanhmoid with sqrt in tensorflow from bf16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d01),np.std(d01)))
     #print("average difference in tanhmoid with subtraction and sqrt in tensorflow from bf16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d4),np.std(d4)))
-
     print("average difference in tanhmoid from fl16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d1),np.std(d1)))
     #the calculation results of commented out two lines are the same as the line above
     #print("average difference in tanhmoid with sqrt in tensorflow from fl16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d11),np.std(d11)))

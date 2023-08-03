@@ -183,7 +183,7 @@ for exp in range(exponent_min, exponent_max+1):
         fp_numbers.append(significand * 2**exp)
         
 fp_numbers = np.array(fp_numbers)
-pt.hist(fp_numbers, bins=3)
+plt.hist(fp_numbers, bins=3)
 bins = 2.0**(np.arange(-14,-12))
 plt.xscale('log',basex=2)
 plt.hist(fp_numbers,bins = bins)
@@ -191,7 +191,6 @@ plt.hist(fp_numbers,bins = bins)
 
 
 """week4_error propagation graph"""
-
 """sigmoid function"""
 """bf16 first layer"""
 
@@ -202,30 +201,22 @@ meanfl16_1=(1.2482272087106862e-14,1.2488740880965015e-12, 1.330892930117689e-10
 stdfl16_1=(3.724784049597544e-15,4.0055547388534926e-13, 3.8470904932610736e-11,4.293010184716444e-09,1.5668417318514176e-08,2.404282979048769e-08,2.4162727227632406e-06,0.00023474215791158054, 0.022167361347480152, 2.371666876257218,10.46048050260168)
 
 """bf16 second layer"""
-
 meanbf16_2=(0.0,0.0,0.0,0.0,2.3422330044581477e-07, 2.3825434341364612e-05,0.0021745645971487466,0.00439872679541347,0.00030105471611022947, 0.0,0.0 ) 
 stdbf16_2=(0.0,0.0,0.0,0.0,8.036966855951453e-08, 9.024487196123634e-06,0.0007595196858133972,0.0011619519866185241,0.0009980413127493016,0.0,0.0)
-
 
 """fl16 second layer"""
 meanfl16_2=(0.0,0.0,0.0,0.0,2.3422330044581477e-07,2.3825434341364612e-05,0.0001962787806128421,0.00025461149640322654,8.45789909362793e-06,0.0,0.0 )
 stdfl16_2=(0.0,0.0,0.0,0.0,8.036966855951453e-08,9.024487196123634e-06,8.2290130491055e-05,0.00013491679355738867,5.387530373723124e-05,0.0,0.0)
 
-
-
 import matplotlib.pyplot as plt
 import numpy as np
 #import plotly.plotly as py
-
-
 ax = plt.subplot(111)
 ind = np.arange(len(meanbf16))
 p1=ax.bar(ind-0.2, meanbf16_1,width=0.1,  color='indianred',align='center')
 p2=ax.bar(ind-0.1, meanfl16_1,width=0.1, color='seagreen',align='center')
-
 p3=ax.bar(ind+0.1, meanbf16_2,width=0.1,  color='r',align='center')
 p4=ax.bar(ind+0.2, meanfl16_2,width=0.1, color='g',align='center')
-
 
 plt.title("error propagation with Sigmoid function")
 plt.xlabel("exponent of 2")
@@ -238,7 +229,6 @@ plt.gca().set_ylim(ymin=0)
 
 plt.savefig("/home/uic-cs/Desktop/summerIntern/errorpropagtion_sigmoid.png")
 
-
 """tanh function"""
 """bf 16 first layer"""
 meanbf16_1 = (1.0299807108499846e-16, 1.0005838511168755e-14, 1.1950963490239624e-12, 1.1272752906135753e-10, 1.028557381663998e-08, 1.2085340173270424e-06, 0.00011512724105740743,0.010912770116108821, 1.1323429169072086, 110.88942918959286, 716.3451857369)
@@ -247,29 +237,21 @@ stdbf16_1= (3.9992527297248016e-17, 3.917957738351406e-15,4.622152331918473e-13,
 meanfl16_1=(1.2482272087106862e-14,1.2488740880965015e-12, 1.330892930117689e-10, 1.321772672096623e-08, 4.4168879033876184e-08, 5.491942728772643e-08, 4.282116058123102e-06, 0.00042757416483919265, 0.0441565229746197,4.270095670297127, 27.566035988040795)
 stdfl16_1=(3.724784049597544e-15,4.0055547388534926e-13, 3.8470904932610736e-11,4.293010184716444e-09,1.5668417318514176e-08,2.404282979048769e-08,2.4162727227632406e-06,0.00023474215791158054, 0.022167361347480152, 2.371666876257218,10.46048050260168)
 
-
-
 """second layer"""
-
 bf16_2 = (8.102488806613088e-17, 7.3018881758417e-15, 8.224916285693519e-13, 7.444364158835973e-11,7.527936976747143e-09, 8.51775467915933e-07, 0.00012549016129761694, 0.0064339907396884985,  3.8961172103881834e-05, 0.0,0.0)
 stdbf16_2 = (3.1412070878967715e-17, 3.04247072960096e-15, 4.229485962997027e-13,  3.14386510582902e-11,3.2353735539951856e-09, 3.8381108620785915e-07, 4.838166762115465e-05,0.0016279501648136414, 0.0003876587677831131,0.0, 0.0)
 fl16_2 = (9.474012029641775e-15,9.1109647509072e-13, 9.338361785304764e-11, 8.905742666592947e-09, 3.007440741459795e-08, 3.671959938297849e-08, 2.668721488540938e-06, 0.0002101469028925337, 1.0132789611816406e-07, 0.0,  0.0)
 stdfl16_2 = (3.293896344681707e-15,3.0456286599750315e-13, 3.5678851549981425e-11, 2.7714612051698236e-09, 1.4221990229226526e-08, 2.2583851004979417e-08,1.823222463236468e-06,0.00010169720527229235, 1.0081998366601787e-06,0,0,0.0)
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 #import plotly.plotly as py
-
-
 ax = plt.subplot(111)
 ind = np.arange(len(meanbf16_1))
 p1=ax.bar(ind-0.2, meanbf16_1,width=0.1,  color='indianred',align='center')
 p2=ax.bar(ind-0.1, meanfl16_1,width=0.1, color='seagreen',align='center')
-
 p3=ax.bar(ind+0.1, bf16_2,width=0.1,  color='r',align='center')
 p4=ax.bar(ind+0.2, fl16_2,width=0.1, color='g',align='center')
-
 
 plt.title("error propagation with Tanh function")
 plt.xlabel("exponent of 2")
@@ -278,32 +260,21 @@ plt.xticks(ind, ('-24', '-20', '-17', '-14', '-10','-7','-4','-1','2','5','7'))
 #plt.gca().set_xscale('log',basex=2)
 plt.gca().set_yscale('log',basey=2)
 plt.legend((p1[0], p2[0],p3[0],p4[0]), ('bf16_1', 'fl16_1','bf16_2','fl16_2'))
-
-
 plt.savefig("/home/uic-cs/Desktop/summerIntern/errorpropagtion_tanh.png")
 
 
 """only second layer for tanh"""
-
 bf16_2 = (8.102488806613088e-17, 7.3018881758417e-15, 8.224916285693519e-13, 7.444364158835973e-11,7.527936976747143e-09, 8.51775467915933e-07, 0.00012549016129761694, 0.0064339907396884985,  3.8961172103881834e-05, 0.0,0.0)
 stdbf16_2 = (3.1412070878967715e-17, 3.04247072960096e-15, 4.229485962997027e-13,  3.14386510582902e-11,3.2353735539951856e-09, 3.8381108620785915e-07, 4.838166762115465e-05,0.0016279501648136414, 0.0003876587677831131,0.0, 0.0)
 fl16_2 = (9.474012029641775e-15,9.1109647509072e-13, 9.338361785304764e-11, 8.905742666592947e-09, 3.007440741459795e-08, 3.671959938297849e-08, 2.668721488540938e-06, 0.0002101469028925337, 1.0132789611816406e-07, 0.0,  0.0)
 stdfl16_2 = (3.293896344681707e-15,3.0456286599750315e-13, 3.5678851549981425e-11, 2.7714612051698236e-09, 1.4221990229226526e-08, 2.2583851004979417e-08,1.823222463236468e-06,0.00010169720527229235, 1.0081998366601787e-06,0,0,0.0)
-
-
 import matplotlib.pyplot as plt
 import numpy as np
 #import plotly.plotly as py
-
-
 ax = plt.subplot(111)
 ind = np.arange(len(meanbf16_1))
-
-
 p1=ax.bar(ind-0.1, bf16_2,width=0.2,  color='b',align='center')
 p2=ax.bar(ind+0.1, fl16_2,width=0.2, color='g',align='center')
-
-
 plt.title("error propagation with Tanh function")
 plt.xlabel("exponent of 2")
 plt.ylabel("absolute error in difference with float32")
@@ -311,39 +282,25 @@ plt.xticks(ind, ('-24', '-20', '-17', '-14', '-10','-7','-4','-1','2','5','7'))
 #plt.gca().set_xscale('log',basex=2)
 plt.gca().set_yscale('log',basey=2)
 plt.legend((p1[0], p2[0]), ('bf16', 'fl16'))
-
-
 plt.savefig("/home/uic-cs/Desktop/summerIntern/errorpropagtion_tanhonlylayer2.png")
 
 
 
 """only second layer for sigmoid"""
-
 """bf16 second layer"""
-
 bf16_2=(0.0,0.0,0.0,0.0,2.3422330044581477e-07, 2.3825434341364612e-05,0.0021745645971487466,0.00439872679541347,0.00030105471611022947, 0.0,0.0 ) 
 stdbf16_2=(0.0,0.0,0.0,0.0,8.036966855951453e-08, 9.024487196123634e-06,0.0007595196858133972,0.0011619519866185241,0.0009980413127493016,0.0,0.0)
-
-
 """fl16 second layer"""
 fl16_2=(0.0,0.0,0.0,0.0,2.3422330044581477e-07,2.3825434341364612e-05,0.0001962787806128421,0.00025461149640322654,8.45789909362793e-06,0.0,0.0 )
 stdfl16_2=(0.0,0.0,0.0,0.0,8.036966855951453e-08,9.024487196123634e-06,8.2290130491055e-05,0.00013491679355738867,5.387530373723124e-05,0.0,0.0)
 
-
-
 import matplotlib.pyplot as plt
 import numpy as np
 #import plotly.plotly as py
-
-
 ax = plt.subplot(111)
 ind = np.arange(len(meanbf16_1))
-
-
 p1=ax.bar(ind-0.1, bf16_2,width=0.2,  color='b',align='center')
 p2=ax.bar(ind+0.1, fl16_2,width=0.2, color='g',align='center')
-
-
 plt.title("error propagation with sigmoid function")
 plt.xlabel("exponent of 2")
 plt.ylabel("absolute error in difference with float32")
@@ -351,8 +308,6 @@ plt.xticks(ind, ('-24', '-20', '-17', '-14', '-10','-7','-4','-1','2','5','7'))
 #plt.gca().set_xscale('log',basex=2)
 plt.gca().set_yscale('log',basey=2)
 plt.legend((p1[0], p2[0]), ('bf16', 'fl16'))
-
-
 plt.savefig("/home/uic-cs/Desktop/summerIntern/errorpropagtion_sigmoidonlylayer2.png")
 
 

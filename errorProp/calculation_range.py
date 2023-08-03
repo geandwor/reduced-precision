@@ -13,9 +13,6 @@ import numpy as np
 
 #generate random matrix
 def calculateRange(mini,maxi,ite,shape1, shape2):
-    
-    
-
     amatrix = tf.placeholder(tf.float16,shape1)
     bmatrix = tf.placeholder(tf.float16,shape2)
     amatrix0 = tf.placeholder(tf.bfloat16,shape1)
@@ -33,15 +30,12 @@ def calculateRange(mini,maxi,ite,shape1, shape2):
         d1 =float(0.0)#python data types floating
         d2 =float(0.0)
         d3 =float(0.0)
-    
         for j in range(ite):
             a = tf.random_uniform(shape1,minval=mini,maxval = maxi,dtype = tf.float32)
             b = tf.random_uniform(shape2,minval=mini,maxval = maxi,dtype = tf.float32)
             """a1 and b1 are in float32 format"""
             a1 = sess.run(a)
             b1 = sess.run(b)
-          
-            
             """calculate the multiplication"""
             """1 multiplication before down cast"""
             cc = sess.run(c, feed_dict= {amatrix:a1,bmatrix:b1})
@@ -49,8 +43,6 @@ def calculateRange(mini,maxi,ite,shape1, shape2):
             """upcast calcualted in 16 bit"""
             cccast = sess.run(tf.cast(cc,tf.float32))
             cc0cast = sess.run(tf.cast(cc0,tf.float32))
-     
-        
             cc1 = sess.run(c1, feed_dict= {amatrix1:a1,bmatrix1:b1})
             cc1_16 =sess.run(tf.cast(cc1,tf.float16))
             cc1_bf16 = sess.run(tf.cast(cc1, tf.bfloat16))
@@ -58,15 +50,12 @@ def calculateRange(mini,maxi,ite,shape1, shape2):
             "1 difference for multiplication before downcast then result upcast"""
             diffcc0cast =cc1-cc0cast
             diffcccast = cc1 - cccast
-
             """"2 difference for multiplication after downcast then result upcast"""
             """3 difference for multiplication result down cast to float16"""
             diffcc1_16 = cc1_16 - cc
 
             """4 difference for multilplcation result down cast to bfloat16"""
             diffcc1_bf16 = cc1_bf16 - cc0
-
-        
             """summation of the elements of the difference matrix and get the square root"""
             #assume the List is either vector or two dimention matrix
             def summation(ndarray):
@@ -74,10 +63,8 @@ def calculateRange(mini,maxi,ite,shape1, shape2):
                 m,n = ndarray.shape
                 for i in range(m):
                     for j in range(n):
-                        s +=ndarray[i][j]**2
-                  
+                        s +=ndarray[i][j]**2 
                 return s
-       
             d0 += np.sqrt(summation(diffcc0cast))
             d1 += np.sqrt(summation(diffcccast))
             d2 += np.sqrt(summation(diffcc1_16))
@@ -125,16 +112,12 @@ for i in range(leng):
         d3 =[]
         d4 =[]
         d5 =[]
-    
-    
         for j in range(ite):
             a = tf.random_uniform(shape1,minval=mini[i],maxval = maxi[i],dtype = tf.float32)
             b = tf.random_uniform(shape2,minval=mini[i],maxval = maxi[i],dtype = tf.float32)
             """a1 and b1 are in float32 format"""
             a1 = sess.run(a)
             b1 = sess.run(b)
-          
-            
             """calculate the multiplication"""
             """1 multiplication before down cast"""
             cc = sess.run(c, feed_dict= {amatrix:a1,bmatrix:b1})
@@ -142,8 +125,6 @@ for i in range(leng):
             """upcast calcualted in 16 bit"""
             cccast = sess.run(tf.cast(cc,tf.float32))
             cc0cast = sess.run(tf.cast(cc0,tf.float32))
-     
-        
             cc1 = sess.run(c1, feed_dict= {amatrix1:a1,bmatrix1:b1})
             cc1_16 =sess.run(tf.cast(cc1,tf.float16))
             cc1_bf16 = sess.run(tf.cast(cc1, tf.bfloat16))
@@ -155,15 +136,11 @@ for i in range(leng):
             diffcccast = cc1 - cccast
             #subtract in tensorflow in float32
             diffcccastf=sess.run(tf.subtract(cc1,cccast))
-
             """"2 difference for multiplication after downcast then result upcast"""
             """3 difference for multiplication result down cast to float16"""
             diffcc1_16 = cc1_16 - cc
-
             """4 difference for multilplcation result down cast to bfloat16"""
             diffcc1_bf16 = cc1_bf16 - cc0
-
-        
             """summation of the elements of the difference matrix and get the square root"""
             #assume the List is either vector or two dimention matrix
             def summation(ndarray):
@@ -171,10 +148,8 @@ for i in range(leng):
                 m,n = ndarray.shape
                 for i in range(m):
                     for j in range(n):
-                        s +=ndarray[i][j]**2
-                  
+                        s +=ndarray[i][j]**2  
                 return s
-       
             d0.append(np.sqrt(summation(diffcc0cast)))
             #square root in tensorflow in float32
             d01.append(sess.run(tf.sqrt(summation(diffcc0cast))))
@@ -192,7 +167,6 @@ for i in range(leng):
     print("average difference from bf16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d0),np.std(d0)))
     print("average difference with sqrt in tensorflow from bf16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d01),np.std(d01)))
     print("average difference with subtraction and sqrt in tensorflow from bf16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d4),np.std(d4)))
-
     print("average difference from fl16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d1),np.std(d1)))
     print("average difference with sqrt in tensorflow from fl16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d11),np.std(d11)))
     print("average difference with subtraction and sqrt in tensorflow from bl16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d5),np.std(d5)))

@@ -65,7 +65,7 @@ W_fc2diflist = []
 b_fc2diflist = []
 bf16resultlist = []
 fl32resultlist = []
-
+#construct network
 xbf16 = tf.placeholder(tf.bfloat16,[None,784])
 y_bf16 = tf.placeholder(tf.bfloat16,[None,10])
 
@@ -100,26 +100,18 @@ hbf16_conv1 = tf.nn.relu(conv2d_1bf16)
 hbf16_pool1 = max_pool_2X2(hbf16_conv1)
 
 #convert the first max pool result from bfloat16 to float32 for the following caculations.
-
 hbf16_fl32_pool1 = tf.cast(hbf16_pool1, tf.float32)
-
-
-
 
 #get the average of the difference of the first pool layer
 pool1dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(hfl32_pool1,hbf16_fl32_pool1))))
-
-
 Wfl32_conv2 = weight_variable([5,5,32,64])
 bfl32_conv2 = bias_variable([64])
-
 Wbf16_conv2 = weight_variable([5,5,32,64])
 bbf16_conv2 = bias_variable([64])
 
 #get the mean difference in the parameters in the second convolution layer
 W_conv2dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(Wfl32_conv2,Wbf16_conv2))))
 b_conv2dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(bfl32_conv2,bbf16_conv2))))
-
 hfl32_conv2 = tf.nn.relu(conv2d(hfl32_pool1,Wfl32_conv2)+bfl32_conv2)
 hfl32_pool2 = max_pool_2X2(hfl32_conv2)
 
@@ -128,22 +120,14 @@ conv2d2_bf16_fl32 = conv2d(hbf16_fl32_pool1,Wbf16_conv2)+bbf16_conv2
 conv2d2_bf16 = tf.cast(conv2d2_bf16_fl32,tf.bfloat16)
 hbf16_conv2 = tf.nn.relu(conv2d2_bf16)
 hbf16_pool2 = max_pool_2X2(hbf16_conv2)
-
 hbf16_fl32_pool2 = tf.cast(hbf16_pool2, tf.float32)
 pool2dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(hfl32_pool2,hbf16_fl32_pool2))))
 
 #drop out layer added directly after the second maxpool in the second convolution layers
-
-
 hfl32_pool2_flat = tf.reshape(hfl32_pool2,[-1,7*7*64])
-
-
 hbf16_fl32_pool2_flat = tf.reshape(hbf16_fl32_pool2,[-1,7*7*64])
-
-
 keepfl32_prob = tf.placeholder(tf.float32)
 keepbf16_fl32_prob = tf.placeholder(tf.float32)
-
 hfl32_pool2_flat_drop = tf.nn.dropout(hfl32_pool2_flat,keepfl32_prob)
 hbf16_fl32_pool2_flat_drop = tf.nn.dropout(hbf16_fl32_pool2_flat,keepbf16_fl32_prob)
 hbf16_pool2_flat_drop = tf.cast(hbf16_fl32_pool2_flat_drop,tf.bfloat16)
@@ -186,29 +170,21 @@ sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
 for i in range(25000):
   batch = mnist.train.next_batch(50)
-  
   if i%1000 == 0:
-     
     train_accuracyfl32 = accuracyfl32.eval(feed_dict={
         xfl32: mnist.test.images, y_fl32: mnist.test.labels, keepfl32_prob: 1.0})
     fl32resultlist.append(train_accuracyfl32)
     print("step %d, training accuracy for testing data in fl32 %g"%(i, train_accuracyfl32))
-    
-    
-  
-
   if i%1000 == 0:
      train_accuracybf16_fl32 = accuracybf16_fl32.eval(feed_dict={xbf16: mnist.test.images, y_bf16: mnist.test.labels, keepbf16_fl32_prob: 1.0})
      bf16resultlist.append(train_accuracybf16_fl32)
      print("step %d, training accuracy for testing data in bf16 %g"%(i, train_accuracybf16_fl32))
-     
-    
+  #expeiment on fl32     
   start_time = time.time()  
   train_stepfl32.run(feed_dict={xfl32: batch[0], y_fl32: batch[1], keepfl32_prob: 0.5})
   duration = time.time() - start_time
   timerfl32.append(duration)
-  
-  
+  #experiemnt on bf16 to fl32
   start_time = time.time()  
   train_stepbf16_fl32.run(feed_dict={xbf16: batch[0], y_bf16: batch[1], keepbf16_fl32_prob: 0.5})
   duration = time.time() - start_time
@@ -237,7 +213,7 @@ print("test accuracy in bfloat16  %g"%accuracybf16_fl32.eval(feed_dict={
 import numpy as np
 import matplotlib.pyplot as plt
 x = np.arange(len(bf16resultlist))
-
+#plot difference of entropy in fl32 and bf16
 fig,ax = plt.subplots()
 plt.plot(x,fl32resultlist,marker='.', linestyle='--', color='r',label = "float32")
 plt.plot(x,bf16resultlist,marker= '.',linestyle = '--',color = 'b',label = 'bfloat16')

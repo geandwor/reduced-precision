@@ -28,14 +28,18 @@ def weight_variable(shape):
     initial = tf.constant(0.02,shape=shape) # starting from the same set of initial values
     #initial1 = tf.cast(initial,tf.float16)
     return tf.Variable(initial)
+
+
 def bias_variable(shape):
     initial = tf.constant(0.1,shape=shape)
     #initial1 = tf.cast(initial,tf.float16)
     return tf.Variable(initial)
 
+
 """convolution and pooling"""
 def conv2d(x,W):
     return tf.nn.conv2d(x,W,strides=[1,1,1,1],padding='SAME')
+
 
 def max_pool_2X2(x):
     return tf.nn.max_pool(x,ksize=[1,2,2,1],strides=[1,2,2,1],padding='SAME')
@@ -62,7 +66,7 @@ W_fc2diflist = []
 b_fc2diflist = []
 bf16resultlist = []
 fl32resultlist = []
-
+#construct network
 xbf16 = tf.placeholder(tf.bfloat16,[None,784])
 y_bf16 = tf.placeholder(tf.bfloat16,[None,10])
 
@@ -99,17 +103,10 @@ hbf16_pool1 = max_pool_2X2(hbf16_conv1)
 #convert the first max pool result from bfloat16 to float32 for the following caculations.
 
 hbf16_fl32_pool1 = tf.cast(hbf16_pool1, tf.float32)
-
-
-
-
 #get the average of the difference of the first pool layer
 pool1dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(hfl32_pool1,hbf16_fl32_pool1))))
-
-
 Wfl32_conv2 = weight_variable([5,5,32,64])
 bfl32_conv2 = bias_variable([64])
-
 Wbf16_conv2 = weight_variable([5,5,32,64])
 bbf16_conv2 = bias_variable([64])
 
@@ -152,7 +149,6 @@ hbf16_fl32_fc1 = tf.cast(hbf16_fc1,tf.float32)
 
 fc1dif = pool1dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(hfl32_fc1,hbf16_fl32_fc1))))
 
-
 keepfl32_prob = tf.placeholder(tf.float32)
 keepbf16_fl32_prob = tf.placeholder(tf.float32)
 
@@ -166,7 +162,6 @@ bfl32_fc2 = bias_variable([10])
 
 Wbf16_fc2 = weight_variable([1024,10])
 bbf16_fc2 = bias_variable([10])
-
 
 #get the mean difference in the parameters in the full connection layer of readout layer
 W_fc2dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(Wfl32_fc2,Wbf16_fc2))))
@@ -191,33 +186,24 @@ correct_predictionbf16_fl32 = tf.equal(tf.argmax(ybf16_fl32_conv,1), tf.argmax(y
 accuracybf16_fl32 = tf.reduce_mean(tf.cast(correct_predictionbf16_fl32, tf.float32))
 
 sess = tf.InteractiveSession()
-
 sess.run(tf.global_variables_initializer())
 for i in range(25000):
   batch = mnist.train.next_batch(50)
-  
-  if i%1000 == 0:
-     
+  if i%1000 == 0: 
     train_accuracyfl32 = accuracyfl32.eval(feed_dict={
         xfl32: mnist.test.images, y_fl32: mnist.test.labels, keepfl32_prob: 1.0})
     fl32resultlist.append(train_accuracyfl32)
     print("step %d, training accuracy for testing data in fl32 %g"%(i, train_accuracyfl32))
-    
-    
-  
-
   if i%1000 == 0:
      train_accuracybf16_fl32 = accuracybf16_fl32.eval(feed_dict={xbf16: mnist.test.images, y_bf16: mnist.test.labels, keepbf16_fl32_prob: 1.0})
      bf16resultlist.append(train_accuracybf16_fl32)
      print("step %d, training accuracy for testing data in bf16 %g"%(i, train_accuracybf16_fl32))
-     
-    
+  #experiment on fl32     
   start_time = time.time()  
   train_stepfl32.run(feed_dict={xfl32: batch[0], y_fl32: batch[1], keepfl32_prob: 0.5})
   duration = time.time() - start_time
   timerfl32.append(duration)
-  
-  
+  #experiment on bf16
   start_time = time.time()  
   train_stepbf16_fl32.run(feed_dict={xbf16: batch[0], y_bf16: batch[1], keepbf16_fl32_prob: 0.5})
   duration = time.time() - start_time
@@ -242,11 +228,10 @@ print("test accuracy in float32  %g"%accuracyfl32.eval(feed_dict={
 print("test accuracy in bfloat16  %g"%accuracybf16_fl32.eval(feed_dict={
     xbf16: mnist.test.images, y_bf16: mnist.test.labels, keepbf16_fl32_prob: 1.0}))
     
-
+#plot the difference of entropy
 import numpy as np
 import matplotlib.pyplot as plt
 x = np.arange(len(bf16resultlist))
-
 fig,ax = plt.subplots()
 plt.plot(x,fl32resultlist,marker='.', linestyle='--', color='r',label = "float32")
 plt.plot(x,bf16resultlist,marker= '.',linestyle = '--',color = 'b',label = 'bfloat16')

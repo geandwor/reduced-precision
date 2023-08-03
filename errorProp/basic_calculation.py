@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 Spyder Editor
-
 This is a temporary script file.
+
+#basic matrix calculation
+#basic matrix vector calculation
+#asic convolution calculation
 """
-"basic matrix calculation
-"basic matrix vector calculation
-"basic convolution calculation
+
 
 #matrix multiplication
 import tensorflow as tf
@@ -641,8 +642,6 @@ plt.xscale('log',basex=2)
 plt.hist(fp_numbers,bins = bins)
         
 
-
-
 #creating nodes in computation graph
 a = tf.placeholder(tf.int32, shape=(3,1))
 b = tf.placeholder(tf.int32, shape=(1,3))
@@ -684,7 +683,7 @@ res = tf.squeeze(tf.nn.conv1d(data, kernel, 1, 'SAME'))
 with tf.Session() as sess:
     print (sess.run(res))
     
-#convolution with sriding
+#convolution with sliding
 res = tf.squeeze(tf.nn.conv1d(data, kernel, 2, 'SAME'))
 with tf.Session() as sess:
     print (sess.run(res))    

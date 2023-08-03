@@ -15,7 +15,6 @@ Created on Sun Jul 15 19:37:42 2018
 neural net sturcture:
     first conv layer, first max pooling layer, second conv layer, second max pooling layer, then dropout layer, last readout layers
 
-
 only the input X and label are defined in bf16, then cast float32, in the first conv layer, all the calculations are in bf16 except the conv2d
 all the other calculations are done in float32
 """
@@ -26,10 +25,13 @@ def weight_variable(shape):
     initial = tf.constant(0.02,shape=shape) # starting from the same set of initial values
     #initial1 = tf.cast(initial,tf.float16)
     return tf.Variable(initial)
+
+
 def bias_variable(shape):
     initial = tf.constant(0.1,shape=shape)
     #initial1 = tf.cast(initial,tf.float16)
     return tf.Variable(initial)
+
 
 """convolution and pooling"""
 def conv2d(x,W):
@@ -95,15 +97,10 @@ hbf16_conv1 = tf.nn.relu(conv2d_1bf16)
 hbf16_pool1 = max_pool_2X2(hbf16_conv1)
 
 #convert the first max pool result from bfloat16 to float32 for the following caculations.
-
 hbf16_fl32_pool1 = tf.cast(hbf16_pool1, tf.float32)
-
-
-
 
 #get the average of the difference of the first pool layer
 pool1dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(hfl32_pool1,hbf16_fl32_pool1))))
-
 
 Wfl32_conv2 = weight_variable([5,5,32,64])
 bfl32_conv2 = bias_variable([64])
@@ -124,24 +121,16 @@ hbf16_fl32_pool2 = max_pool_2X2(hbf16_fl32_conv2)
 pool2dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(hfl32_pool2,hbf16_fl32_pool2))))
 
 #drop out layer added directly after the second maxpool in the second convolution layers
-
-
 hfl32_pool2_flat = tf.reshape(hfl32_pool2,[-1,7*7*64])
-
-
 hbf16_fl32_pool2_flat = tf.reshape(hbf16_fl32_pool2,[-1,7*7*64])
-
-
 keepfl32_prob = tf.placeholder(tf.float32)
 keepbf16_fl32_prob = tf.placeholder(tf.float32)
-
 hfl32_pool2_flat_drop = tf.nn.dropout(hfl32_pool2_flat,keepfl32_prob)
 hbf16_fl32_pool2_flat_drop = tf.nn.dropout(hbf16_fl32_pool2_flat,keepbf16_fl32_prob)
 
 """readout layer"""
 Wfl32_fc1 = weight_variable([7*7*64,10])
 bfl32_fc1 = bias_variable([10])
-
 Wbf16_fc1 = weight_variable([7*7*64,10])
 bbf16_fc1 = bias_variable([10])
 
@@ -151,9 +140,7 @@ W_fc2dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(Wfl32_fc1,Wbf16_fc1))))
 b_fc2dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(bfl32_fc1,bbf16_fc1))))
 yfl32_conv = tf.matmul(hfl32_pool2_flat_drop,Wfl32_fc1)+bfl32_fc1
 ybf16_fl32_conv = tf.matmul(hbf16_fl32_pool2_flat_drop,Wbf16_fc1)+bbf16_fc1
-
 yconvdif = pool1dif = tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(yfl32_conv,ybf16_fl32_conv))))
-
 cross_entropyfl32 = tf.reduce_mean(
     tf.nn.softmax_cross_entropy_with_logits(labels=y_fl32, logits=yfl32_conv))
 cross_entropybf16_fl32 = tf.reduce_mean(
@@ -169,32 +156,27 @@ correct_predictionbf16_fl32 = tf.equal(tf.argmax(ybf16_fl32_conv,1), tf.argmax(y
 accuracybf16_fl32 = tf.reduce_mean(tf.cast(correct_predictionbf16_fl32, tf.float32))
 
 sess = tf.InteractiveSession()
-
 sess.run(tf.global_variables_initializer())
 for i in range(25000):
   batch = mnist.train.next_batch(50)
   
-  if i%1000 == 0:
-     
+  if i%1000 == 0: 
     train_accuracyfl32 = accuracyfl32.eval(feed_dict={
         xfl32: mnist.test.images, y_fl32: mnist.test.labels, keepfl32_prob: 1.0})
     fl32resultlist.append(train_accuracyfl32)
     print("step %d, training accuracy in fl32 %g"%(i, train_accuracyfl32))
     
-    
-  
   if i%1000 == 0:
      train_accuracybf16_fl32 = accuracybf16_fl32.eval(feed_dict={xbf16: mnist.test.images, y_bf16: mnist.test.labels, keepbf16_fl32_prob: 1.0})
      bf16resultlist.append(train_accuracybf16_fl32)
      print("step %d, training accuracy in bf16 %g"%(i, train_accuracybf16_fl32))
      
-    
+  #experiment on fl32  
   start_time = time.time()  
   train_stepfl32.run(feed_dict={xfl32: batch[0], y_fl32: batch[1], keepfl32_prob: 0.5})
   duration = time.time() - start_time
   timerfl32.append(duration)
-  
-  
+  #experiment on bf16 to fl32
   start_time = time.time()  
   train_stepbf16_fl32.run(feed_dict={xbf16: batch[0], y_bf16: batch[1], keepbf16_fl32_prob: 0.5})
   duration = time.time() - start_time
@@ -214,8 +196,7 @@ for i in range(25000):
 #  b_fc2diflist.append(sess.run(b_fc2dif, feed_dict={xfl32: batch[0], y_fl32: batch[1], keepfl32_prob: 1,xbf16: batch[0], y_bf16: batch[1], keepbf16_fl32_prob: 1}))
 
 print("test accuracy in float32  %g"%accuracyfl32.eval(feed_dict={
-    xfl32: mnist.test.images, y_fl32: mnist.test.labels, keepfl32_prob: 1.0}))
-    
+    xfl32: mnist.test.images, y_fl32: mnist.test.labels, keepfl32_prob: 1.0}))  
 print("test accuracy in bfloat16  %g"%accuracybf16_fl32.eval(feed_dict={
     xbf16: mnist.test.images, y_bf16: mnist.test.labels, keepbf16_fl32_prob: 1.0}))
     

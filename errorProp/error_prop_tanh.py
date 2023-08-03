@@ -77,7 +77,6 @@ with tf.Session() as sess:
     for i in range(11):
         print("iteration i{0}\n".format(i))
    
-        
         d0 =[]
         d01=[]
         d1 =[]
@@ -87,27 +86,22 @@ with tf.Session() as sess:
         d4 =[]
         d5 =[]
     
-    
         for j in range(ite):
             a = tf.random_uniform(shape1,minval=mini[i],maxval = maxi[i],dtype = tf.float32)
             b = tf.random_uniform(shape2,minval=mini[i],maxval = maxi[i],dtype = tf.float32)
             """a1 and b1 are in float32 format"""
             a1 = sess.run(a)
             b1 = sess.run(b)
-          
-            
             """calculate the multiplication"""
             """1 multiplication before down cast"""
             cc = sess.run(c, feed_dict= {amatrix:a1,bmatrix:b1})
             cc0 = sess.run(c0,feed_dict={amatrix0:a1,bmatrix0:b1})
-            
             '''calculation in tanh only diagnoal elements are considered for further calculation'''
             cc_tanh = sess.run(tf.tanh(cc))
             cc0_tanh = sess.run(tf.cast(nptanh(cc0),tf.bfloat16))
             """upcast to float32 from calcualted in 16 bit"""
             cc_tanhcast = sess.run(tf.cast(cc_tanh,tf.float32))
             cc0_tanhcast = sess.run(tf.cast(cc0_tanh,tf.float32))
-     
             '''calculation in tanh only diagnol elements are considered for further calculation'''
             cc1 = sess.run(c1, feed_dict= {amatrix1:a1,bmatrix1:b1})
             cc1_tanh = sess.run(tf.tanh(cc1))
@@ -121,16 +115,12 @@ with tf.Session() as sess:
             diffcccast_tanh = cc1_tanh - cc_tanhcast
             #subtract in tensorflow in float32
             #diffcccastf_tanh=sess.run(tf.subtract(cc1_tanh,cc_tanhcast))
-
             """"2 difference for multiplication after downcast then result upcast"""
             """3 difference for multiplication result down cast to float16"""
             #diffcc1_16_tanh = cc1_tanh_16 - cc_tanh
-
             """4 difference for multilplcation result down cast to bfloat16"""
             #diffcc1_bf16_tanh = cc1_tanh_bf16 - cc0_tanh
-            
-
-       
+        
             d0.append(np.sqrt(summation(diffcc0cast_tanh)))
             #square root in tensorflow in float32
             #d01.append(sess.run(tf.sqrt(summation(diffcc0cast_tanh))))
@@ -153,7 +143,6 @@ with tf.Session() as sess:
     #the calculation results of commented out two lines are the same as the line above
     #print("average difference in tanhmoid with sqrt in tensorflow from bf16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d01),np.std(d01)))
     #print("average difference in tanhmoid with subtraction and sqrt in tensorflow from bf16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d4),np.std(d4)))
-
     print("average difference in tanh from fl16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d1),np.std(d1)))
     #the calculation results of commented out two lines are the same as the line above
     #print("average difference in tanhmoid with sqrt in tensorflow from fl16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d11),np.std(d11)))

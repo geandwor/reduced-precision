@@ -93,9 +93,7 @@ init = tf.global_variables_initializer()
 #with tf.Session() as sess:
     #sess.run(init)
 for i in range(1):
-    print("iteration i{0}\n".format(i))
-    
-        
+    print("iteration i{0}\n".format(i))   
     d0 =[]
     #d01=[]
     d1 =[]
@@ -104,8 +102,6 @@ for i in range(1):
     #d3 =[]
     #d4 =[]
     #d5 =[]
-    
-    
     for j in range(10):
         with tf.Session() as sess:
             #sess.run(init)
@@ -123,7 +119,6 @@ for i in range(1):
             """1 multiplication before down cast"""
             cc = sess.run(c, feed_dict= {amatrix:a1,bmatrix:b1})
             cc0 = sess.run(c0,feed_dict={amatrix0:a1,bmatrix0:b1})
-        
             '''calculation in sigmoid only diagnol elements are considered for further calculation'''
             cc_sig = sess.run(sigfl16,feed_dict={sfl16:cc})
             cc0_fl32 = sess.run(sigbf16,feed_dict={sbf16:cc0})
@@ -133,7 +128,6 @@ for i in range(1):
             """upcast to float32 from calcualted in 16 bit"""
             cc_sigcast = sess.run(sigfl16_fl32,{sigfl16:cc_sig})
             cc0_sigcast = cc0_sig
- 
             '''calculation in sigmoid only diagnol elements are considered for further calculation'''
             cc1 = sess.run(c1, feed_dict= {amatrix1:a1,bmatrix1:b1})
             cc1_sig = sess.run(sigfl32,{c1:cc1})
@@ -147,15 +141,11 @@ for i in range(1):
             diffcccast_sig = cc1_sig - cc_sigcast
             #subtract in tensorflow in float32
             #diffcccastf_sig=sess.run(tf.subtract(cc1_sig,cc_sigcast))
-
             """"2 difference for multiplication after downcast then result upcast"""
             """3 difference for multiplication result down cast to float16"""
             #diffcc1_16_sig = cc1_sig_16 - cc_sig
-
             """4 difference for multilplcation result down cast to bfloat16"""
             #diffcc1_bf16_sig = cc1_sig_bf16 - cc0_sig
-        
-
             print("summation in fl16 is {0}\n".format(summation(diffcccast_sig)))
             d0.append(np.sqrt(summation(diffcc0cast_sig)))
             #square root in tensorflow in float32
@@ -175,7 +165,6 @@ for i in range(1):
     #the calculation results of commented out two lines are the same as the line above
     #print("average difference in sigmoid with sqrt in tensorflow from bf16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d01),np.std(d01)))
     #print("average difference in sigmoid with subtraction and sqrt in tensorflow from bf16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d4),np.std(d4)))
-
     print("average difference in sigmoid from fl16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d1),np.std(d1)))
     #the calculation results of commented out two lines are the same as the line above
     #print("average difference in sigmoid with sqrt in tensorflow from fl16 with fl32 in fl32 is: {0}, std is: {1}\n".format(np.mean(d11),np.std(d11)))
